@@ -1,0 +1,11 @@
+@Andon_HostAddress = http://localhost:5051
+
+GET {{Andon_HostAddress}}/
+Accept: application/json
+
+###
+
+GET {{Andon_HostAddress}}/
+Accept: application/json
+
+###
