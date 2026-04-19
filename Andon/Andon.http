@@ -1,11 +1,6 @@
-@Andon_HostAddress = http://localhost:5051
+@Andon_HostAddress = http://localhost:5265
 
-GET {{Andon_HostAddress}}/
-Accept: application/json
-
-###
-
-GET {{Andon_HostAddress}}/
+GET {{Andon_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

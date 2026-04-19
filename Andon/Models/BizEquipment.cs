@@ -1,0 +1,28 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Andon.Models
+{
+    [Table("biz_equipment")]
+    public class BizEquipment
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Column("equipment_code")]
+        [MaxLength(50)]
+        public string? EquipmentCode { get; set; }
+
+        [Column("equipment_name")]
+        [MaxLength(100)]
+        public string? EquipmentName { get; set; }
+
+        [Column("line_id")]
+        [MaxLength(20)]
+        public string? LineId { get; set; }
+
+        [Column("status")]
+        [MaxLength(20)]
+        public string? Status { get; set; }
+    }
+}
