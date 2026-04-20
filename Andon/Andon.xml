@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Andon</name>
+    </assembly>
+    <members>
+        <member name="M:Andon.Controllers.AccountController.Register(Andon.Dtos.UserRegisterDto)">
+            <summary>
+             注册用户部分逻辑      
+            </summary>
+            <param name="Dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.Login(Andon.Dtos.LoginDto)">
+            <summary>
+            用户登录部分逻辑
+            </summary>
+            <param name="Dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.GetProfile">
+            <summary>
+            获取用户信息部分逻辑
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.GetUsers(System.Int32,System.Int32)">
+            <summary>
+            获取用户列表部分逻辑
+            </summary>
+            <param name="page"></param>
+            <param name="limit"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.GetById(System.Int32)">
+             <summary>
+            根据ID获取用户信息部分逻辑
+             </summary>
+             <param name="id"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.Update(System.Int32,Andon.Dtos.UserUpdateDto)">
+            <summary>
+            修改用户信息部分逻辑
+            </summary>
+            <param name="id"></param>
+            <param name="Dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.ChangePwd(Andon.Dtos.ChangePwdDto)">
+            <summary>
+            修改密码部分逻辑
+            </summary>
+            <param name="Dto"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.EnableUser(System.Int32,System.Boolean)">
+            <summary>
+            启用/禁用用户部分逻辑
+            </summary>
+            <param name="id"></param>
+            <param name="isEnabled"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.Delete(System.Int32)">
+            <summary>
+            删除用户部分逻辑
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.ChangeUserRole(System.Int32,System.Int32)">
+            <summary>
+            修改用户权限等级
+            </summary>
+            <param name="id">要修改的用户ID</param>
+            <param name="newRoleId">新的权限角色ID</param>
+            <returns></returns>
+        </member>
+        <member name="M:Andon.Controllers.AccountController.SearchUsers(System.String,System.Int32,System.Int32)">
+            <summary>
+            根据姓名/用户名模糊查询用户
+            </summary>
+            <param name="keyword">搜索关键词（姓名/用户名）</param>
+            <param name="page">页码</param>
+            <param name="limit">每页条数</param>
+            <returns></returns>
+        </member>
+        <member name="P:Andon.Dtos.ChangePwdDto.OldPassword">
+            <summary>
+            原密码
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.ChangePwdDto.NewPassword">
+            <summary>
+            新密码
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.LoginDto.Username">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.LoginDto.Password">
+            <summary>
+            密码
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserRegisterDto.Username">
+            <summary>
+            用户名
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserRegisterDto.Password">
+            <summary>
+            密码
+            </summary>                                      
+        </member>
+        <member name="P:Andon.Dtos.UserRegisterDto.RealName">
+            <summary>
+            真实名字
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserRegisterDto.Gender">
+            <summary>
+            性别
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserRegisterDto.Phone">
+            <summary>
+            电话
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserRegisterDto.Email">
+            <summary>
+            邮箱
+            </summary>                  
+        </member>
+        <member name="P:Andon.Dtos.UserRegisterDto.RoleId">
+            <summary>
+            权限ID 默认为3
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserUpdateDto.RealName">
+            <summary>
+            真实姓名
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserUpdateDto.Gender">
+            <summary>   
+            性别
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserUpdateDto.Phone">
+            <summary>   
+            电话
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserUpdateDto.Email">
+            <summary>
+            电子邮件
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.UserUpdateDto.RoleId">
+            <summary>
+            权限ID
+            </summary>
+        </member>
+    </members>
+</doc>

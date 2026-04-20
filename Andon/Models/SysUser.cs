@@ -41,5 +41,8 @@ namespace Andon.Models
 
         [ForeignKey("RoleId")]
         public SysRole? Role { get; set; }
+
+        [Column("is_enabled")]
+        public bool IsEnabled { get; set; } = true;
     }
 }

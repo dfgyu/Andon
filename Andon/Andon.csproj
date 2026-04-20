@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>a2c65cfd-c504-4811-bcd2-3b34f3f9f6ca</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>$(OutputPath)Andon.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

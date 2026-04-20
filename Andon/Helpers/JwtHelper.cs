@@ -8,7 +8,6 @@ namespace Andon.Helpers
 {
     public class JwtHelper
     {
-        //  静态方法 + 完全使用传入的 config，不依赖类的实例变量
         public static string GenerateToken(SysUser user, IConfiguration config)
         {
             var claims = new List<Claim>
@@ -16,10 +15,10 @@ namespace Andon.Helpers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.RealName),
                 new Claim(ClaimTypes.Role, user.RoleId.ToString()),
-                new Claim("RoleName", user.Role!.RoleName!)
+                new Claim("RoleName", user.Role!.RoleName!),
+                new Claim("RoleId", user.RoleId.ToString())
             };
 
-            //  全部用传入的 config，不要用 _config
             var secretKey = config["Jwt:Secret"];
             var issuer = config["Jwt:Issuer"];
             var audience = config["Jwt:Audience"];
