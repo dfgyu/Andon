@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Andon.Enums;
+
 
 namespace Andon.Models
 {
@@ -22,7 +24,6 @@ namespace Andon.Models
         public string? LineId { get; set; }
 
         [Column("status")]
-        [MaxLength(20)]
-        public string? Status { get; set; }
+        public EquipmentStatus Status { get; set; }
     }
 }

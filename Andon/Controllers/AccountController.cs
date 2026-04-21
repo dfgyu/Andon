@@ -28,11 +28,7 @@ namespace Andon.Controllers
             _context = context;
             _configuration = configuration;
         }
-        private bool IsAdmin()
-        {
-            var roleId = User.FindFirst("RoleId")?.Value;
-            return roleId == "3"; // 只有角色ID=3才返回true
-        }
+        
         /// <summary>
         ///  注册用户部分逻辑      
         /// </summary>
@@ -196,11 +192,10 @@ namespace Andon.Controllers
         /// <param name="isEnabled"></param>
         /// <returns></returns>
         [HttpPut("enable/{id}")]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> EnableUser(int id, [FromQuery] bool isEnabled)
         {
 
-            if (!IsAdmin())
-                return Forbid("权限不足，仅管理员可禁用/启用用户");
             var user = await _context.SysUsers.FindAsync(id);
 
             if (user == null) return NotFound("用户不存在");
@@ -217,10 +212,9 @@ namespace Andon.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (!IsAdmin())
-                return Forbid("权限不足，仅管理员可删除用户");
             var user = await _context.SysUsers.FindAsync(id);
             if (user == null) return NotFound("用户不存在");
 
@@ -236,10 +230,9 @@ namespace Andon.Controllers
         /// <param name="newRoleId">新的权限角色ID</param>
         /// <returns></returns>
         [HttpPut("change-role/{id}")]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> ChangeUserRole(int id, [FromQuery] int newRoleId)
         {
-            if (!IsAdmin())
-                return Forbid("权限不足，只有超级管理员可以修改权限");
 
             var user = await _context.SysUsers.FindAsync(id);
             if (user == null)
@@ -259,10 +252,9 @@ namespace Andon.Controllers
         /// <param name="limit">每页条数</param>
         /// <returns></returns>
         [HttpGet("search")]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> SearchUsers(string keyword, int page = 1, int limit = 10)
         {
-            if (!IsAdmin())
-                return Forbid("权限不足，仅管理员可搜索用户");
 
             var query = _context.SysUsers
                 .Include(u => u.Role)

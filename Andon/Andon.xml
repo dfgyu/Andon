@@ -86,6 +86,121 @@
             <param name="limit">每页条数</param>
             <returns></returns>
         </member>
+        <member name="T:Andon.Controllers.BizAttendanceController">
+            <summary>
+            员工考勤管理
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.BizAttendanceController.GetMyAttendances(System.Int32,System.Int32)">
+            <summary>
+            获取当前登录用户个人考勤记录(分页)
+            </summary>
+            <param name="page">页码</param>
+            <param name="limit">每页条数</param>
+            <returns>个人考勤列表</returns>
+        </member>
+        <member name="M:Andon.Controllers.BizAttendanceController.GetList(System.Int32,System.Int32)">
+            <summary>
+            管理员获取全员考勤记录(分页)
+            </summary>
+            <param name="page">页码</param>
+            <param name="limit">每页条数</param>
+            <returns>全员考勤列表</returns>
+        </member>
+        <member name="M:Andon.Controllers.BizAttendanceController.Search(Andon.Dtos.AttendanceSearchDto)">
+            <summary>
+            管理员多条件筛选考勤(用户ID/日期)
+            </summary>
+            <param name="dto">筛选条件</param>
+            <returns>筛选后考勤数据</returns>
+        </member>
+        <member name="M:Andon.Controllers.BizAttendanceController.Create(Andon.Dtos.AttendanceCreateDto)">
+            <summary>
+            员工提交当日考勤打卡
+            </summary>
+            <param name="dto">考勤提交参数</param>
+            <returns>提交结果</returns>
+        </member>
+        <member name="M:Andon.Controllers.BizAttendanceController.Update(System.Int32,Andon.Dtos.AttendanceUpdateDto)">
+            <summary>
+            管理员编辑考勤记录
+            </summary>
+            <param name="id">考勤ID</param>
+            <param name="dto">考勤编辑参数</param>
+            <returns>修改结果</returns>
+        </member>
+        <member name="M:Andon.Controllers.BizAttendanceController.Delete(System.Int32)">
+            <summary>
+            管理员删除指定考勤记录
+            </summary>
+            <param name="id">考勤ID</param>
+            <returns>删除结果</returns>
+        </member>
+        <member name="T:Andon.Dtos.AttendanceCreateDto">
+            <summary>
+            新增考勤/打卡 DTO
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceCreateDto.WorkDate">
+            <summary>
+            工作日期
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceCreateDto.WorkHours">
+            <summary>
+            工作时长
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceCreateDto.Remark">
+            <summary>
+            备注
+            </summary>
+        </member>
+        <member name="T:Andon.Dtos.AttendanceSearchDto">
+            <summary>
+            查询考勤 DTO
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceSearchDto.UserId">
+            <summary>
+            用户ID
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceSearchDto.WorkDate">
+            <summary>
+            工作日期
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceSearchDto.Page">
+            <summary>
+            页码
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceSearchDto.Limit">
+            <summary>
+            每页条数
+            </summary>
+        </member>
+        <member name="T:Andon.Dtos.AttendanceUpdateDto">
+            <summary>
+            编辑考勤 DTO
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceUpdateDto.WorkDate">
+            <summary>
+            工作日期
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceUpdateDto.WorkHours">
+            <summary>
+            工作时长
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.AttendanceUpdateDto.Remark">
+            <summary>
+            备注
+            </summary>
+        </member>
         <member name="P:Andon.Dtos.ChangePwdDto.OldPassword">
             <summary>
             原密码

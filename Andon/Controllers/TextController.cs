@@ -22,7 +22,7 @@ namespace Andon.Controllers
         }
 
         [HttpGet("admin")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "3")]
         public IActionResult GetAdminText()
         {
             return Ok("This is an admin text.");
