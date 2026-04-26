@@ -1,6 +1,8 @@
 using Andon.Helpers;
+using Andon.Hubs;
 using Andon.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -20,7 +22,7 @@ namespace Andon
                 options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-
+            builder.Services.AddSignalR();
             builder.Services.AddScoped<JwtHelper>();
             // Add services to the container.
 
@@ -97,7 +99,7 @@ namespace Andon
 
 
             app.MapControllers();
-
+            app.MapHub<LineMonitorHub>("/hub/linemonitor");
             app.Run();
         }
     }

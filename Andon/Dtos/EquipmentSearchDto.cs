@@ -12,6 +12,9 @@ namespace Andon.Dtos
         public string? LineId { get; set; }
         public EquipmentStatus? Status { get; set; } // 可空枚举筛选
 
+        public EquipmentsProcess? Process { get; set; }
+        public string? AlertContact { get; set; }
+
         public int Page { get; set; } = 1;
         public int Limit { get; set; } = 10;
     }

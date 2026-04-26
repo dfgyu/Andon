@@ -28,9 +28,16 @@ namespace Andon.Dtos
         [MaxLength(20)]
         public string? LineId { get; set; }
 
+        /// <summary>
+        /// 设备所属工序，枚举类型
+        /// </summary>
+        public EquipmentsProcess Process { get; set; }
+
         /// <summary>           
         /// 设备状态，枚举类型，表示设备的当前状态 
         /// </summary>
         public EquipmentStatus Status { get; set; }
+
+        public string? AlertContact { get; set; }
     }
 }

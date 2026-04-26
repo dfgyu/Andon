@@ -136,6 +136,111 @@
             <param name="id">考勤ID</param>
             <returns>删除结果</returns>
         </member>
+        <member name="M:Andon.Controllers.BizEquipmentController.GetList(System.Int32,System.Int32)">
+            <summary>
+            获取设备列表
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.BizEquipmentController.Search(Andon.Dtos.EquipmentSearchDto)">
+            <summary>
+            条件筛选：编码、名称、产线、状态、工序、联系人
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.BizEquipmentController.GetById(System.Int32)">
+            <summary>
+            获取单个设备
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.BizEquipmentController.Create(Andon.Dtos.EquipmentCreateDto)">
+            <summary>
+            添加设备【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.BizEquipmentController.Update(System.Int32,Andon.Dtos.EquipmentUpdateDto)">
+            <summary>
+            修改设备【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.BizEquipmentController.UpdateStatus(System.Int32,Andon.Enums.EquipmentStatus)">
+            <summary>
+            修改设备状态【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.BizEquipmentController.Delete(System.Int32)">
+            <summary>
+            删除设备【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.LineMonitorController.GetLineMonitorData(Andon.Dtos.LineMonitorSearchDto)">
+            <summary>
+            获取全产线实时监控数据
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.LineMonitorController.GetEquipmentMonitor(System.Int32)">
+            <summary>
+            获取单台设备详细实时监控
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.MaterialController.GetList(System.Int32,System.Int32)">
+            <summary>
+            物料列表（分页）
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.MaterialController.Search(Andon.Dtos.MaterialSearchDto)">
+            <summary>
+            搜索物料（编码、名称、类型）
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.MaterialController.GetById(System.Int32)">
+            <summary>
+            物料详情
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.MaterialController.Create(Andon.Dtos.MaterialCreateDto)">
+            <summary>
+            新增物料【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.MaterialController.Update(System.Int32,Andon.Dtos.MaterialUpdateDto)">
+            <summary>
+            修改物料【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.MaterialController.UpdateStock(System.Int32,System.Int32)">
+            <summary>
+            修改库存【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.MaterialController.Delete(System.Int32)">
+            <summary>
+            删除物料【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.WarningAlarmController.GetAllAlarmConfigs">
+            <summary>
+            获取所有报警配置
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.WarningAlarmController.GetAlarmConfig(System.Int32)">
+            <summary>
+            根据ID获取报警配置
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.WarningAlarmController.AddAlarmConfig(Andon.Models.AndonAlarmConfig)">
+            <summary>
+            添加报警配置
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.WarningAlarmController.UpdateAlarmConfig(System.Int32,Andon.Models.AndonAlarmConfig)">
+            <summary>
+            修改报警配置
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.WarningAlarmController.DeleteAlarmConfig(System.Int32)">
+            <summary>
+            删除报警配置
+            </summary>
+        </member>
         <member name="T:Andon.Dtos.AttendanceCreateDto">
             <summary>
             新增考勤/打卡 DTO
@@ -209,6 +314,66 @@
         <member name="P:Andon.Dtos.ChangePwdDto.NewPassword">
             <summary>
             新密码
+            </summary>
+        </member>
+        <member name="T:Andon.Dtos.EquipmentCreateDto">
+            <summary>
+            设备创建DTO类，用于接收前端传来的设备创建请求数据
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentCreateDto.EquipmentCode">
+            <summary>
+            设备编码，唯一标识设备，长度不超过50个字符
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentCreateDto.EquipmentName">
+            <summary>
+            设备名称，长度不超过100个字符
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentCreateDto.LineId">
+            <summary>
+            生产线ID，长度不超过20个字符
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentCreateDto.Process">
+            <summary>
+            所属工序，枚举类型
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentCreateDto.Status">
+            <summary>
+            状态，枚举类型，表示设备的当前状态
+            </summary>
+        </member>
+        <member name="T:Andon.Dtos.EquipmentUpdateDto">
+            <summary>
+             设备更新DTO类，用于接收前端传来的设备更新请求数据
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentUpdateDto.EquipmentCode">
+            <summary>
+            设备编码，唯一标识设备，长度不超过50个字符
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentUpdateDto.EquipmentName">
+            <summary>
+            设备名称，长度不超过100个字符
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentUpdateDto.LineId">
+            <summary>
+            生产线ID，长度不超过20个字符
+            </summary>  
+        </member>
+        <member name="P:Andon.Dtos.EquipmentUpdateDto.Process">
+            <summary>
+            设备所属工序，枚举类型
+            </summary>
+        </member>
+        <member name="P:Andon.Dtos.EquipmentUpdateDto.Status">
+            <summary>           
+            设备状态，枚举类型，表示设备的当前状态 
             </summary>
         </member>
         <member name="P:Andon.Dtos.LoginDto.Username">

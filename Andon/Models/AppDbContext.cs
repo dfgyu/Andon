@@ -11,7 +11,7 @@ namespace Andon.Models
         public DbSet<SysUser> SysUsers { get; set; }
         public DbSet<AndonAlarmConfig> AndonAlarmConfigs { get; set; }
 
-        public DbSet<ProductionEquipmentData> ProductionEquipmentData { get; set; }
+        public DbSet<BizIotEquipmentData> BizIotEquipmentDatas { get; set; }
 
         public DbSet<WarningAlarms> WarningAlarms { get; set; }
 

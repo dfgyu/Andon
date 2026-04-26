@@ -19,11 +19,18 @@ namespace Andon.Models
         [MaxLength(100)]
         public string? EquipmentName { get; set; }
 
+        [Column("process")]
+        public EquipmentsProcess Process { get; set; }
+
         [Column("line_id")]
         [MaxLength(20)]
         public string? LineId { get; set; }
 
         [Column("status")]
         public EquipmentStatus Status { get; set; }
+
+        [Column("alert_contact")]
+        [MaxLength(100)]
+        public string? AlertContact { get; set; }
     }
 }

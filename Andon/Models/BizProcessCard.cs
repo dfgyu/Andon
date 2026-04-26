@@ -26,5 +26,12 @@ namespace Andon.Models
 
         [Column("est_time")]
         public int? EstTime { get; set; }
+
+        [Column("alarm_threshold")]
+        public int? AlarmThreshold { get; set; }
+
+        // 修复CS1061：添加导航属性
+        public BizEquipment? BizEquipment { get; set; }
+        public SysUser? SysUser { get; set; }
     }
 }

@@ -32,10 +32,18 @@ namespace Andon.Dtos
         public string? LineId { get; set; }
 
         /// <summary>
+        /// 所属工序，枚举类型
+        /// </summary>
+
+        public EquipmentsProcess Process { get; set; }
+
+        /// <summary>
         /// 状态，枚举类型，表示设备的当前状态
         /// </summary>
 
         // 枚举
         public EquipmentStatus Status { get; set; }
+
+        public string? AlertContact { get; set; }
     }
 }

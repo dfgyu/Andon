@@ -1,4 +1,5 @@
 ﻿using Andon.Dtos;
+using Andon.Enums;
 using Andon.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,7 @@ namespace Andon.Controllers
         }
 
         /// <summary>
-        /// 条件筛选设备
+        /// 条件筛选：编码、名称、产线、状态、工序、联系人
         /// </summary>
         [HttpPost("search")]
         public async Task<IActionResult> Search([FromBody] EquipmentSearchDto dto)
@@ -53,6 +54,14 @@ namespace Andon.Controllers
 
             if (dto.Status.HasValue)
                 query = query.Where(e => e.Status == dto.Status.Value);
+
+
+            if (dto.Process.HasValue)
+                query = query.Where(e => e.Process == dto.Process.Value);
+
+
+            if (!string.IsNullOrEmpty(dto.AlertContact))
+                query = query.Where(e => e.AlertContact != null && e.AlertContact.Contains(dto.AlertContact));
 
             var total = await query.CountAsync();
             var list = await query
@@ -85,7 +94,9 @@ namespace Andon.Controllers
                 EquipmentCode = dto.EquipmentCode,
                 EquipmentName = dto.EquipmentName,
                 LineId = dto.LineId,
-                Status = dto.Status
+                Status = dto.Status,
+                Process = dto.Process,          // 工序
+                AlertContact = dto.AlertContact // 报警联系人
             };
 
             _context.BizEquipments.Add(eq);
@@ -107,17 +118,19 @@ namespace Andon.Controllers
             eq.EquipmentName = dto.EquipmentName;
             eq.LineId = dto.LineId;
             eq.Status = dto.Status;
+            eq.Process = dto.Process;          
+            eq.AlertContact = dto.AlertContact; 
 
             await _context.SaveChangesAsync();
             return Ok("修改成功");
         }
 
         /// <summary>
-        /// 修改设备状态【管理员 + 枚举】
+        /// 修改设备状态【管理员】
         /// </summary>
         [HttpPatch("status/{id}")]
         [Authorize(Roles = "3")]
-        public async Task<IActionResult> UpdateStatus(int id, [FromQuery] Andon.Enums.EquipmentStatus status)
+        public async Task<IActionResult> UpdateStatus(int id, [FromQuery] EquipmentStatus status)
         {
             var eq = await _context.BizEquipments.FindAsync(id);
             if (eq == null) return NotFound();

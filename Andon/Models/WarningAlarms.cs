@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Andon.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Andon.Models
@@ -16,9 +17,11 @@ namespace Andon.Models
         [Column("equipment_id")]
         public int? EquipmentId { get; set; }
 
-        [Column("station_code")]
-        [MaxLength(20)]
-        public string? StationCode { get; set; }
+        [Column("process")]   
+        public EquipmentsProcess Process { get; set; }
+
+        [Column("alarm_config_id")]
+        public int? AlarmConfigId { get; set; }
 
         [Column("alarm_desc")]
         [MaxLength(255)]

@@ -30,10 +30,21 @@ namespace Andon.Models
         [MaxLength(100)]
         public string? SoundAlarm { get; set; }
 
-        [Column("volume")]
-        public int? Volume { get; set; }
 
         [Column("is_stop_line")]
         public int? IsStopLine { get; set; }
+
+        [Column("alarm_time")]
+        public DateTime AlarmTime { get; set; }
+
+        [Column("handle_status")]
+        public int HandleStatus { get; set; } = 0;
+
+        [Column("handler")]
+        [MaxLength(50)]
+        public string? Handler { get; set; }
+
+        [Column("handle_time")]
+        public DateTime? HandleTime { get; set; }
     }
 }
