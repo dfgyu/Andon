@@ -216,29 +216,69 @@
             删除物料【管理员】
             </summary>
         </member>
-        <member name="M:Andon.Controllers.WarningAlarmController.GetAllAlarmConfigs">
+        <member name="M:Andon.Controllers.QualityController.GetList(System.Int32,System.Int32)">
             <summary>
-            获取所有报警配置
+            质检列表（分页）
             </summary>
         </member>
-        <member name="M:Andon.Controllers.WarningAlarmController.GetAlarmConfig(System.Int32)">
+        <member name="M:Andon.Controllers.QualityController.Search(Andon.Dtos.QualitySearchDto)">
             <summary>
-            根据ID获取报警配置
+            搜索质检记录（产品名/操作员/是否合格）
             </summary>
         </member>
-        <member name="M:Andon.Controllers.WarningAlarmController.AddAlarmConfig(Andon.Models.AndonAlarmConfig)">
+        <member name="M:Andon.Controllers.QualityController.GetById(System.Int32)">
             <summary>
-            添加报警配置
+            质检详情
             </summary>
         </member>
-        <member name="M:Andon.Controllers.WarningAlarmController.UpdateAlarmConfig(System.Int32,Andon.Models.AndonAlarmConfig)">
+        <member name="M:Andon.Controllers.QualityController.Create(Andon.Dtos.QualityCreateDto)">
             <summary>
-            修改报警配置
+            新增质检记录【管理员/操作员】
             </summary>
         </member>
-        <member name="M:Andon.Controllers.WarningAlarmController.DeleteAlarmConfig(System.Int32)">
+        <member name="M:Andon.Controllers.QualityController.Update(System.Int32,Andon.Dtos.QualityUpdateDto)">
             <summary>
-            删除报警配置
+            修改质检记录【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.QualityController.Delete(System.Int32)">
+            <summary>
+            删除质检记录【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.ToolController.GetList(System.Int32,System.Int32)">
+            <summary>
+            工具列表（分页）
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.ToolController.Search(Andon.Dtos.ToolSearchDto)">
+            <summary>
+            搜索工具（名称/型号/仓库）
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.ToolController.GetById(System.Int32)">
+            <summary>
+            工具详情
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.ToolController.Create(Andon.Dtos.ToolCreateDto)">
+            <summary>
+            新增工具【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.ToolController.Update(System.Int32,Andon.Dtos.ToolUpdateDto)">
+            <summary>
+            修改工具【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.ToolController.UpdateStock(System.Int32,System.Int32)">
+            <summary>
+            修改库存【管理员】
+            </summary>
+        </member>
+        <member name="M:Andon.Controllers.ToolController.Delete(System.Int32)">
+            <summary>
+            删除工具【管理员】
             </summary>
         </member>
         <member name="T:Andon.Dtos.AttendanceCreateDto">

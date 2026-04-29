@@ -13,6 +13,9 @@ namespace Andon.Models
         [MaxLength(50)]
         public string LineId { get; set; } = "";
 
+        [Column("equipment_id")]
+        public int EquipmentId { get; set; }
+
         [Column("run_status")]
         public int RunStatus { get; set; }
 

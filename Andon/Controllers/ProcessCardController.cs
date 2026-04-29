@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Andon.Controllers
 {
+    /// <summary>
+    /// 工序卡逻辑
+    /// </summary>
     [Route("api/processcard")]
     [ApiController]
     [Authorize] // 登录即可访问
@@ -21,6 +24,12 @@ namespace Andon.Controllers
         // ==============================
         // 列表 + 分页 + 筛选
         // ==============================
+
+        /// <summary>
+        /// 工序卡列表
+        /// </summary>
+        /// <param name="dto">工序卡查询条件</param>
+        /// <returns></returns>
         [HttpPost("list")]
         public async Task<IActionResult> List([FromBody] ProcessCardSearchDto dto)
         {
@@ -68,6 +77,12 @@ namespace Andon.Controllers
         // ==============================
         // 单个详情
         // ==============================
+
+        /// <summary>
+        /// 单个工序详情
+        /// </summary>
+        /// <param name="id">工序卡ID</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -96,6 +111,12 @@ namespace Andon.Controllers
         // ==============================
         // 新增（管理员权限）
         // ==============================
+
+        /// <summary>
+        /// 新增工序卡
+        /// </summary>
+        /// <param name="dto">工序卡创建信息</param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Roles = "3")]
         public async Task<IActionResult> Create([FromBody] ProcessCardCreateDto dto)
@@ -118,6 +139,13 @@ namespace Andon.Controllers
         // ==============================
         // 修改（管理员权限）
         // ==============================
+
+        /// <summary>
+        /// 修改工序卡
+        /// </summary>
+        /// <param name="id">工序卡ID</param>
+        /// <param name="dto">工序卡更新信息</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "3")]
         public async Task<IActionResult> Update(int id, [FromBody] ProcessCardCreateDto dto)
@@ -138,6 +166,12 @@ namespace Andon.Controllers
         // ==============================
         // 删除（管理员权限）
         // ==============================
+
+        /// <summary>
+        /// 删除工序卡
+        /// </summary>
+        /// <param name="id">工序卡ID</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [Authorize(Roles = "3")]
         public async Task<IActionResult> Delete(int id)

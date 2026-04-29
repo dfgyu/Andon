@@ -3,10 +3,13 @@ using Andon.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace Andon.Controllers
 {
+
+    /// <summary>
+    /// 报警接口：包含报警记录查询、处理、恢复，以及报警配置的CRUD接口
+    /// </summary>
     [Route("api/alarm")]
     [ApiController]
     [Authorize]
@@ -19,7 +22,12 @@ namespace Andon.Controllers
             _context = context;
         }
 
-        // 列表 + 分页 + 筛选
+        // 报警列表
+        /// <summary>
+        /// 查询报警记录，支持按产线、设备、报警类型筛选，并分页返回总数和列表
+        /// </summary>
+        /// <param name="dto">报警查询条件</param>
+        /// <returns></returns>
         [HttpPost("list")]
         public async Task<IActionResult> List([FromBody] AlarmSearchDto dto)
         {
@@ -34,11 +42,7 @@ namespace Andon.Controllers
             if (!string.IsNullOrEmpty(dto.AlarmType))
                 query = query.Where(a => a.AlarmType == dto.AlarmType);
 
-            if (dto.IsStopLine.HasValue)
-                query = query.Where(a => a.IsStopLine == dto.IsStopLine);
-
             var total = await query.CountAsync();
-
             var list = await query
                 .OrderByDescending(a => a.StartTime)
                 .Skip((dto.Page - 1) * dto.Limit)
@@ -48,7 +52,14 @@ namespace Andon.Controllers
             return Ok(new { total, list });
         }
 
-        // 处理报警（指定处理人）
+        // 处理报警
+
+        /// <summary>
+        /// 处理报警接口，接收报警ID和处理人ID，更新报警记录的处理人字段，并返回处理结果
+        /// </summary>
+        /// <param name="id">报警ID</param>
+        /// <param name="handlerId">处理人ID</param>
+        /// <returns></returns>
         [HttpPatch("handle/{id}")]
         public async Task<IActionResult> Handle(int id, [FromQuery] int handlerId)
         {
@@ -57,11 +68,17 @@ namespace Andon.Controllers
 
             alarm.HandlerId = handlerId;
             await _context.SaveChangesAsync();
-
             return Ok("已处理");
         }
 
         // 手动恢复
+
+        /// <summary>
+        /// 手动恢复接口，接收报警ID，更新报警记录的结束时间和持续时长，并返回恢复结果
+        /// 没能自动恢复的报警，可以通过这个接口手动恢复，结束时间默认为当前时间，持续时长根据开始时间计算得出
+        /// </summary>
+        /// <param name="id">报警ID</param>
+        /// <returns></returns>
         [HttpPatch("recover/{id}")]
         public async Task<IActionResult> Recover(int id)
         {
@@ -80,224 +97,71 @@ namespace Andon.Controllers
             await _context.SaveChangesAsync();
             return Ok("已恢复");
         }
+
+        // ====================== 报警配置 CRUD ======================
         /// <summary>
-        /// 获取所有报警配置
+        /// 获得报警配置列表接口，返回所有的报警配置记录，前端可以根据产线和报警类型进行筛选展示
         /// </summary>
+        /// <returns></returns>
         [HttpGet("configs")]
-        public async Task<ActionResult<IEnumerable<AndonAlarmConfig>>> GetAllAlarmConfigs()
+        public async Task<IActionResult> GetConfigs()
         {
-            return await _context.AndonAlarmConfigs.ToListAsync();
+            var list = await _context.AndonAlarmConfigs.ToListAsync();
+            return Ok(list);
         }
         /// <summary>
-        /// 根据ID获取报警配置
+        /// 根据ID获得单个报警配置接口，返回对应ID的报警配置记录，前端可以用于编辑时加载数据展示在表单中
         /// </summary>
+        /// <param name="id">报警配置ID</param>
+        /// <returns></returns>
         [HttpGet("configs/{id}")]
-        public async Task<ActionResult<AndonAlarmConfig>> GetAlarmConfig(int id)
+        public async Task<IActionResult> GetConfig(int id)
         {
             var config = await _context.AndonAlarmConfigs.FindAsync(id);
-            if (config == null)
-            {
-                return NotFound("报警配置不存在");
-            }
+            if (config == null) return NotFound();
             return Ok(config);
         }
         /// <summary>
-        /// 添加报警配置
+        /// 添加报警配置接口，接收一个报警配置对象，保存到数据库，并返回保存后的对象（包含ID），前端可以通过这个接口新增报警配置
         /// </summary>
+        /// <param name="config">报警配置对象</param>
+        /// <returns></returns>
         [HttpPost("configs")]
-        public async Task<ActionResult<AndonAlarmConfig>> AddAlarmConfig(AndonAlarmConfig config)
+        public async Task<IActionResult> AddConfig([FromBody] AndonAlarmConfig config)
         {
             _context.AndonAlarmConfigs.Add(config);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetAlarmConfig), new { id = config.Id }, config);
+            return Ok(config);
         }
-        /// <summary>
-        /// 修改报警配置
-        /// </summary>
-        [HttpPut("configs/{id}")]
-        public async Task<IActionResult> UpdateAlarmConfig(int id, AndonAlarmConfig config)
-        {
-            if (id != config.Id)
-            {
-                return BadRequest("配置ID不匹配");
-            }
 
+        /// <summary>
+        /// 修改报警配置接口，接收一个包含ID的报警配置对象，根据ID更新数据库中的记录，并返回更新结果，前端可以通过这个接口修改已有的报警配置
+        /// </summary>
+        /// <param name="id">报警配置ID</param>
+        /// <param name="config">报警配置对象 </param>
+        /// <returns></returns>
+        [HttpPut("configs/{id}")]
+        public async Task<IActionResult> UpdateConfig(int id, [FromBody] AndonAlarmConfig config)
+        {
+            if (id != config.Id) return BadRequest();
             _context.Entry(config).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.AndonAlarmConfigs.Any(e => e.Id == id))
-                {
-                    return NotFound("报警配置不存在");
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
             return NoContent();
         }
+
         /// <summary>
-        /// 删除报警配置
+        /// 删除报警配置接口，接收一个报警配置ID，根据ID删除数据库中的记录，并返回删除结果，前端可以通过这个接口删除不需要的报警配置
         /// </summary>
+        /// <param name="id">报警配置ID</param>
+        /// <returns></returns>
         [HttpDelete("configs/{id}")]
-        public async Task<IActionResult> DeleteAlarmConfig(int id)
+        public async Task<IActionResult> DeleteConfig(int id)
         {
             var config = await _context.AndonAlarmConfigs.FindAsync(id);
-            if (config == null)
-            {
-                return NotFound("报警配置不存在");
-            }
-
+            if (config == null) return NotFound();
             _context.AndonAlarmConfigs.Remove(config);
             await _context.SaveChangesAsync();
             return NoContent();
         }
-
-        // ======================================================================
-        // 【核心】触发报警 → 自动生成记录 + 亮灯 + 发短信
-        // ======================================================================
-        [HttpPost("trigger")]
-        public async Task<IActionResult> TriggerAlarm(string lineId, string alarmSource)
-        {
-            // 1. 查询报警配置
-            var config = await _context.AndonAlarmConfigs
-                .FirstOrDefaultAsync(c => c.LineId == lineId && c.AlarmSource == alarmSource);
-
-            if (config == null)
-                return NotFound("未找到报警配置");
-
-            // 2. 生成报警记录
-            var record = new AndonAlarmConfig
-            {
-                LineId = lineId,
-                AlarmSource = alarmSource,
-                LevelCode = config.LevelCode,
-                LightAlarm = config.LightAlarm,
-                SoundAlarm = config.SoundAlarm,
-                IsStopLine = config.IsStopLine,
-                AlarmTime = DateTime.Now,
-                HandleStatus = 0,
-                Handler = null,
-                HandleTime = null
-            };
-
-            _context.AndonAlarmConfigs.Add(record);
-            await _context.SaveChangesAsync();
-
-            // ======================================================
-            // 触发硬件报警（灯光 + 声音）
-            // ======================================================
-            await TriggerHardwareAlarm(config);
-
-            // ======================================================
-            // 自动发短信给负责人（从设备/工序卡取电话）
-            // ======================================================
-            await SendAlarmSms(lineId);
-
-            return Ok(new
-            {
-                recordId = record.Id,
-                message = "报警已触发，记录已生成，灯光已启动，短信已发送"
-            });
-        }
-
-        // ======================================================================
-        // 【硬件报警】灯光 + 声音
-        // ======================================================================
-        private async Task TriggerHardwareAlarm(AndonAlarmConfig config)
-        {
-            try
-            {
-                // 这里是真实硬件调用逻辑（PLC/串口/网络指令）
-                // 需要对接硬件厂商SDK即可
-
-                var data = new HardwareAlarmDto
-                {
-                    LineId = config.LineId,
-                    LightAlarm = config.LightAlarm,
-                    SoundAlarm = config.SoundAlarm,
-                    IsStopLine = config.IsStopLine ?? 0
-                };
-
-                // 示例：亮红灯 + 鸣笛
-                if (config.LightAlarm == "RED")
-                {
-                    // 亮红灯指令
-                }
-                if (config.SoundAlarm == "ENABLE")
-                {
-                    // 声音报警
-                }
-                if (config.IsStopLine == 1)
-                {
-                    // 产线停机
-                }
-
-                await Task.CompletedTask;
-            }
-            catch
-            {
-                // 硬件异常不影响主流程
-            }
-        }
-
-        // ======================================================================
-        // 【自动发短信】从 ProcessCard / Equipment 取员工电话
-        // ======================================================================
-        private async Task SendAlarmSms(string lineId)
-        {
-            try
-            {
-                // 1. 先获取当前产线的设备
-                var eq = await _context.BizEquipments
-                    .FirstOrDefaultAsync(e => e.LineId == lineId);
-
-                if (eq == null) return;
-
-                // 2. 获取当前设备最新工序卡（负责人）
-                var card = await _context.BizProcessCards
-                    .Where(c => c.EquipmentId == eq.Id)
-                    .OrderByDescending(c => c.Id)
-                    .FirstOrDefaultAsync();
-
-                if (card == null || card.OperatorId == null) return;
-
-                // 3. 获取操作员电话（来自 sys_user）
-                var user = await _context.SysUsers
-                    .FirstOrDefaultAsync(u => u.Id == card.OperatorId);
-
-                if (user == null || string.IsNullOrEmpty(user.Phone)) return;
-
-                // 4. 发送报警短信
-                var sms = new SendSmsDto
-                {
-                    Phone = user.Phone,
-                    Message = $"【产线报警】产线：{lineId}，设备：{eq.EquipmentName}，时间：{DateTime.Now:HH:mm}"
-                };
-
-                // 调用短信接口
-                await SendSms(sms);
-            }
-            catch
-            {
-                // 短信失败不影响主流程
-            }
-        }
-
-        // ======================================================================
-        // 短信发送接口
-        // ======================================================================
-        private async Task SendSms(SendSmsDto dto)
-        {
-            // 这里接入阿里云/腾讯云/华为云短信SDK
-            // 你只需要填配置即可
-
-            await Task.CompletedTask;
-        }
-
     }
 }

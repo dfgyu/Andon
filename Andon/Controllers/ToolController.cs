@@ -7,28 +7,29 @@ using Microsoft.EntityFrameworkCore;
 namespace Andon.Controllers
 {
     /// <summary>
-    /// 物料管理接口
+    /// 工具管理接口
     /// </summary>
-    [Route("api/material")]
+    [Route("api/tool")]
     [ApiController]
     [Authorize]
-    public class MaterialController : ControllerBase
+    public class ToolController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public MaterialController(AppDbContext context)
+        public ToolController(AppDbContext context)
         {
             _context = context;
         }
 
         /// <summary>
-        /// 物料列表（分页）
+        /// 工具列表（分页）
         /// </summary>
         [HttpGet("list")]
         public async Task<IActionResult> GetList(int page = 1, int limit = 10)
         {
-            var query = _context.BizMaterials.AsNoTracking();
+            var query = _context.BizTools.AsNoTracking();
             var total = await query.CountAsync();
+
             var items = await query
                 .Skip((page - 1) * limit)
                 .Take(limit)
@@ -38,23 +39,24 @@ namespace Andon.Controllers
         }
 
         /// <summary>
-        /// 搜索物料（编码、名称、类型）
+        /// 搜索工具（名称/型号/仓库）
         /// </summary>
         [HttpPost("search")]
-        public async Task<IActionResult> Search([FromBody] MaterialSearchDto dto)
+        public async Task<IActionResult> Search([FromBody] ToolSearchDto dto)
         {
-            var query = _context.BizMaterials.AsQueryable();
+            var query = _context.BizTools.AsQueryable();
 
-            if (!string.IsNullOrEmpty(dto.MaterialCode))
-                query = query.Where(m => m.MaterialCode.Contains(dto.MaterialCode));
+            if (!string.IsNullOrEmpty(dto.ToolName))
+                query = query.Where(t => t.ToolName.Contains(dto.ToolName));
 
-            if (!string.IsNullOrEmpty(dto.MaterialName))
-                query = query.Where(m => m.MaterialName.Contains(dto.MaterialName));
+            if (!string.IsNullOrEmpty(dto.ToolModel))
+                query = query.Where(t => t.ToolModel.Contains(dto.ToolModel));
 
-            if (!string.IsNullOrEmpty(dto.Type))
-                query = query.Where(m => m.Type == dto.Type);
+            if (!string.IsNullOrEmpty(dto.Warehouse))
+                query = query.Where(t => t.Warehouse == dto.Warehouse);
 
             var total = await query.CountAsync();
+
             var list = await query
                 .Skip((dto.Page - 1) * dto.Limit)
                 .Take(dto.Limit)
@@ -64,53 +66,55 @@ namespace Andon.Controllers
         }
 
         /// <summary>
-        /// 物料详情
+        /// 工具详情
         /// </summary>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var material = await _context.BizMaterials.FindAsync(id);
-            if (material == null)
-                return NotFound("物料不存在");
+            var tool = await _context.BizTools.FindAsync(id);
+            if (tool == null)
+                return NotFound("工具不存在");
 
-            return Ok(material);
+            return Ok(tool);
         }
 
         /// <summary>
-        /// 新增物料【管理员】
+        /// 新增工具【管理员】
         /// </summary>
         [HttpPost]
         [Authorize(Roles = "3")]
-        public async Task<IActionResult> Create([FromBody] MaterialCreateDto dto)
+        public async Task<IActionResult> Create([FromBody] ToolCreateDto dto)
         {
-            var material = new BizMaterial
+            var tool = new BizTool
             {
-                MaterialCode = dto.MaterialCode,
-                MaterialName = dto.MaterialName,
-                Type = dto.Type,
-                SurplusQty = dto.SurplusQty
+                ToolName = dto.ToolName,
+                ToolModel = dto.ToolModel,
+                TotalQty = dto.TotalQty,
+                SurplusQty = dto.SurplusQty,
+                Warehouse = dto.Warehouse
             };
 
-            _context.BizMaterials.Add(material);
+            _context.BizTools.Add(tool);
             await _context.SaveChangesAsync();
             return Ok("新增成功");
         }
 
         /// <summary>
-        /// 修改物料【管理员】
+        /// 修改工具【管理员】
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = "3")]
-        public async Task<IActionResult> Update(int id, [FromBody] MaterialUpdateDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] ToolUpdateDto dto)
         {
-            var material = await _context.BizMaterials.FindAsync(id);
-            if (material == null)
-                return NotFound("物料不存在");
+            var tool = await _context.BizTools.FindAsync(id);
+            if (tool == null)
+                return NotFound("工具不存在");
 
-            material.MaterialCode = dto.MaterialCode;
-            material.MaterialName = dto.MaterialName;
-            material.Type = dto.Type;
-            material.SurplusQty = dto.SurplusQty;
+            tool.ToolName = dto.ToolName;
+            tool.ToolModel = dto.ToolModel;
+            tool.TotalQty = dto.TotalQty;
+            tool.SurplusQty = dto.SurplusQty;
+            tool.Warehouse = dto.Warehouse;
 
             await _context.SaveChangesAsync();
             return Ok("修改成功");
@@ -123,27 +127,27 @@ namespace Andon.Controllers
         [Authorize(Roles = "3")]
         public async Task<IActionResult> UpdateStock(int id, [FromQuery] int surplusQty)
         {
-            var material = await _context.BizMaterials.FindAsync(id);
-            if (material == null)
+            var tool = await _context.BizTools.FindAsync(id);
+            if (tool == null)
                 return NotFound();
 
-            material.SurplusQty = surplusQty;
+            tool.SurplusQty = surplusQty;
             await _context.SaveChangesAsync();
             return Ok("库存已更新");
         }
 
         /// <summary>
-        /// 删除物料【管理员】
+        /// 删除工具【管理员】
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "3")]
         public async Task<IActionResult> Delete(int id)
         {
-            var material = await _context.BizMaterials.FindAsync(id);
-            if (material == null)
-                return NotFound("物料不存在");
+            var tool = await _context.BizTools.FindAsync(id);
+            if (tool == null)
+                return NotFound("工具不存在");
 
-            _context.BizMaterials.Remove(material);
+            _context.BizTools.Remove(tool);
             await _context.SaveChangesAsync();
             return Ok("删除成功");
         }

@@ -96,6 +96,7 @@ namespace Andon.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("profile")]
+        [Authorize]
         public async Task<IActionResult> GetProfile()
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -133,6 +134,7 @@ namespace Andon.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _context.SysUsers
@@ -150,6 +152,7 @@ namespace Andon.Controllers
         /// <param name="Dto"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Update(int id, UserUpdateDto Dto)
         {
             var user = await _context.SysUsers.FindAsync(id);
@@ -171,6 +174,7 @@ namespace Andon.Controllers
         /// <param name="Dto"></param>
         /// <returns></returns>
         [HttpPut("change-pwd")]
+        [Authorize]
         public async Task<IActionResult> ChangePwd(ChangePwdDto Dto)
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);

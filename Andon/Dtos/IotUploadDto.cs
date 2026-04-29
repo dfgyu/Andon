@@ -7,6 +7,9 @@ namespace Andon.Dtos
         [Required]
         public string LineId { get; set; } = "";
 
+        [Required] // 必须传设备ID
+        public int EquipmentId { get; set; }
+
         [Required]
         public int RunStatus { get; set; }
 
