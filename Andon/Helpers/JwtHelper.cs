@@ -22,7 +22,7 @@ namespace Andon.Helpers
             var secretKey = config["Jwt:Secret"];
             var issuer = config["Jwt:Issuer"];
             var audience = config["Jwt:Audience"];
-            var expireMinutes = Convert.ToDouble(config["Jwt:ExpireMinutes"]);
+            var expireMinutes = Convert.ToDouble(config["Jwt:ExpirationMinutes"]);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

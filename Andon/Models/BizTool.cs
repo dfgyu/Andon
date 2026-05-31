@@ -26,5 +26,11 @@ namespace Andon.Models
         [Column("warehouse")]
         [MaxLength(20)]
         public string? Warehouse { get; set; }
+
+        [Column("maintenance_date")]
+        public DateTime? MaintenanceDate { get; set; }
+
+        [Column("safety_margin")]
+        public int? SafetyMargin { get; set; }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Andon.Enums;
 
 namespace Andon.Models
 {
-    [Table("ProductionEquipmentData")]
+    [Table("biz_iot_equipment_data")]
     public class BizIotEquipmentData
     {
         [Key]
@@ -17,22 +18,12 @@ namespace Andon.Models
         public int EquipmentId { get; set; }
 
         [Column("run_status")]
-        public int RunStatus { get; set; }
+        public EquipmentStatus RunStatus { get; set; }
 
-        [Column("is_blocked")]
-        public bool IsBlocked { get; set; }
-
-        [Column("is_overheat")]
-        public bool IsOverheat { get; set; }
-
-        [Column("is_deviation")]
-        public bool IsDeviation { get; set; }
-
-        [Column("is_pack_error")]
-        public bool IsPackError { get; set; }
+        [Column("error_type")]
+        public ErrorTypes ErrorType { get; set; }
 
         [Column("collection_time")]
-        [MaxLength(50)]
-        public string CollectionTime { get; set; } = "";
+        public DateTime CollectionTime { get; set; }
     }
 }

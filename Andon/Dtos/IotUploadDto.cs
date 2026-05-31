@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Andon.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Andon.Dtos
 {
@@ -11,11 +12,8 @@ namespace Andon.Dtos
         public int EquipmentId { get; set; }
 
         [Required]
-        public int RunStatus { get; set; }
-
-        public bool IsBlocked { get; set; }
-        public bool IsOverheat { get; set; }
-        public bool IsDeviation { get; set; }
-        public bool IsPackError { get; set; }
+        public EquipmentStatus RunStatus { get; set; }
+        
+        public ErrorTypes ErrorType { get; set; }
     }
 }

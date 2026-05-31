@@ -29,11 +29,11 @@ namespace Andon.Models
 
         [Column("start_time")]
         [MaxLength(30)]
-        public string? StartTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
         [Column("end_time")]
         [MaxLength(30)]
-        public string? EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         [Column("duration_min")]
         public int? DurationMin { get; set; }
@@ -47,5 +47,17 @@ namespace Andon.Models
 
         [Column("handler_id")]
         public int? HandlerId { get; set; }
+
+        /// <summary>
+        /// 获取或设置告警状态。
+        /// </summary>
+        [Column("status")]
+        public int? Status { get; set; }
+
+        [ForeignKey("AlarmConfigId")]
+        public AndonAlarmConfig? andonAlarmConfig { get; set; }
+
+        [ForeignKey("EquipmentId")]
+        public BizEquipment bizEquipment { get; set; }
     }
 }

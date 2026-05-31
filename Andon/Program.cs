@@ -26,7 +26,12 @@ namespace Andon
             builder.Services.AddScoped<JwtHelper>();
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    // 全局支持 TimeSpan 转换
+                    options.JsonSerializerOptions.Converters.Add(new TimeSpanConverter());
+                }); ;
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -84,6 +89,36 @@ namespace Andon
                     ValidAudience = jwtSection["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(secretKey)
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        // 跳过默认的 401 响应
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = 200; // 仍然返回 200，但在响应体中包含错误信息
+                        context.Response.ContentType = "application/json";
+
+                        string msg;
+                        int code;
+
+                        if (context.AuthenticateFailure?.InnerException is SecurityTokenExpiredException)
+                        {
+                            code = 4001;
+                            msg = "登录已过期，请重新登录";
+                        }
+                        else
+                        {
+                            code = 4002;
+                            msg = "未登录或Token无效";
+                        }
+
+                        var result = new { code, msg };
+                        return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(result));
+                    }
+
+                };
             });
 
 
@@ -100,6 +135,7 @@ namespace Andon
 
             app.MapControllers();
             app.MapHub<LineMonitorHub>("/hub/linemonitor");
+            app.MapHub<EquipmentRTDHub>("/hub/equipmentrtd");
             app.Run();
         }
     }

@@ -29,5 +29,7 @@ namespace Andon.Models
 
         public DbSet<BizTool> BizTools { get; set; }
 
+        public DbSet<BizEquipmentRTD> BizEquipmentRTDs { get; set; }
+
     }
 }

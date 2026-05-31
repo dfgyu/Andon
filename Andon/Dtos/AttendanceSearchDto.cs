@@ -27,5 +27,10 @@ namespace Andon.Dtos
         /// 每页条数
         /// </summary>
         public int Limit { get; set; } = 10;
+
+        /// <summary>
+        /// 考勤状态
+        /// </summary>
+        public int? Status { get; set; }
     }
 }

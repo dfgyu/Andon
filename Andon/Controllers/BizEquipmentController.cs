@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Andon.Controllers
 {
-    [Route("api/equipment")]
-    [ApiController]
-    [Authorize]
+    /// <summary>
+    /// 设备管理控制器
+    /// </summary>
     public class BizEquipmentController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,10 +19,30 @@ namespace Andon.Controllers
         {
             _context = context;
         }
+
         /// <summary>
-        /// 获取设备列表
+        /// 获取全部设备列表（无分页）
         /// </summary>
-        [HttpGet("list")]
+        /// <response>返回数据结构：List&lt;BizEquipment&gt;</response>
+        /// <response code="200">查询成功，返回全部设备列表</response>
+        [HttpGet("api/bizequipment/all")]
+        public async Task<IActionResult> GetAll()
+        {
+            var allEquipments = await _context.BizEquipments
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Ok(allEquipments);
+        }
+
+        /// <summary>
+        /// 获取设备列表（分页）
+        /// </summary>
+        /// <param name="page">页码，默认 1</param>
+        /// <param name="limit">每页数量，默认 10</param>
+        /// <response>返回数据结构：{"total": int, "items": List&lt;BizEquipment&gt;}</response>
+        /// <response code="200">查询成功，返回分页后的设备总数与设备列表</response>
+        [HttpGet("api/bizequipment/list")]
         public async Task<IActionResult> GetList(int page = 1, int limit = 10)
         {
             var query = _context.BizEquipments.AsNoTracking();
@@ -36,46 +56,86 @@ namespace Andon.Controllers
         }
 
         /// <summary>
-        /// 条件筛选：编码、名称、产线、状态、工序、联系人
+        /// 条件筛选设备（编码、名称、产线、状态、工序、联系人），支持分页
         /// </summary>
-        [HttpPost("search")]
+        /// <param name="dto">查询条件及分页参数</param>
+        /// <response>返回数据结构：{"total": int, "list": List&lt;BizEquipment&gt;}</response>
+        /// <response code="200">查询成功，返回符合条件的设备总数与当前页设备列表</response>
+
+        [HttpPost("api/bizequipment/search")]
         public async Task<IActionResult> Search([FromBody] EquipmentSearchDto dto)
         {
-            var query = _context.BizEquipments.AsQueryable();
+            // 即使不传 dto 也不报错
+            dto ??= new EquipmentSearchDto();
 
-            if (!string.IsNullOrEmpty(dto.EquipmentCode))
-                query = query.Where(e => e.EquipmentCode.Contains(dto.EquipmentCode));
+            // 分页默认值
+            int page = dto.Page < 1 ? 1 : dto.Page;
+            int limit = dto.Limit < 1 ? 10 : dto.Limit;
 
-            if (!string.IsNullOrEmpty(dto.EquipmentName))
-                query = query.Where(e => e.EquipmentName.Contains(dto.EquipmentName));
+            var query = _context.BizEquipments
 
-            if (!string.IsNullOrEmpty(dto.LineId))
+                     .AsNoTracking()       
+                     .IgnoreAutoIncludes() 
+                     .AsQueryable();
+
+            var sql = query.ToQueryString();
+            Console.WriteLine(sql);
+
+            
+            if (!string.IsNullOrWhiteSpace(dto.EquipmentCode))
+                query = query.Where(e => EF.Functions.Like(e.EquipmentCode, $"%{dto.EquipmentCode}%"));
+
+            if (!string.IsNullOrWhiteSpace(dto.EquipmentName))
+                query = query.Where(e => EF.Functions.Like(e.EquipmentName, $"%{dto.EquipmentName}%"));
+
+            if (!string.IsNullOrWhiteSpace(dto.EquipmentModel))
+                query = query.Where(e => EF.Functions.Like(e.EquipmentModel, $"%{dto.EquipmentModel}%"));
+
+            if (!string.IsNullOrWhiteSpace(dto.LineId))
                 query = query.Where(e => e.LineId == dto.LineId);
 
             if (dto.Status.HasValue)
-                query = query.Where(e => e.Status == dto.Status.Value);
-
+                query = query.Where(e => (int)e.Status == (int)dto.Status.Value);
 
             if (dto.Process.HasValue)
-                query = query.Where(e => e.Process == dto.Process.Value);
+                query = query.Where(e => (int)e.Process == (int)dto.Process.Value);
 
-
-            if (!string.IsNullOrEmpty(dto.AlertContact))
+            if (!string.IsNullOrWhiteSpace(dto.AlertContact))
                 query = query.Where(e => e.AlertContact != null && e.AlertContact.Contains(dto.AlertContact));
 
             var total = await query.CountAsync();
             var list = await query
-                .Skip((dto.Page - 1) * dto.Limit)
-                .Take(dto.Limit)
+                 .Select(e => new
+                 {
+                     e.Id,
+                     e.EquipmentCode,
+                     e.EquipmentName,
+                     Process = (int)e.Process,
+                     e.LineId,
+                     Status = (int)e.Status,
+                     e.AlertContact,
+                     e.InstallationDate,
+                     e.MaintenanceDate,
+                     e.EquipmentModel
+                 })
+                .Skip((page - 1) * limit)
+                .Take(limit)
                 .ToListAsync();
 
+
             return Ok(new { total, list });
+
+
         }
 
         /// <summary>
-        /// 获取单个设备
+        /// 获取单个设备详情
         /// </summary>
-        [HttpGet("{id}")]
+        /// <param name="id">设备主键 Id</param>
+        /// <response>返回数据结构：BizEquipment</response>
+        /// <response code="200">查询成功，返回设备对象</response>
+        /// <response code="404">设备不存在，返回错误信息字符串</response>
+        [HttpGet("api/bizequipment/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var eq = await _context.BizEquipments.FindAsync(id);
@@ -83,10 +143,14 @@ namespace Andon.Controllers
         }
 
         /// <summary>
-        /// 添加设备【管理员】
+        /// 添加设备(roleid = 3 ,4,6)
         /// </summary>
-        [HttpPost]
-        [Authorize(Roles = "3")]
+        /// <param name="dto">设备创建 DTO</param>
+        /// <response>返回数据结构：string（操作结果消息）</response>
+        /// <response code="200">添加成功，返回成功消息</response>
+        [HttpPost("api/bizequipment/Create")]
+
+        [Authorize(Roles = "3,4,6")]
         public async Task<IActionResult> Create([FromBody] EquipmentCreateDto dto)
         {
             var eq = new BizEquipment
@@ -96,7 +160,10 @@ namespace Andon.Controllers
                 LineId = dto.LineId,
                 Status = dto.Status,
                 Process = dto.Process,          // 工序
-                AlertContact = dto.AlertContact // 报警联系人
+                AlertContact = dto.AlertContact, // 报警联系人
+                InstallationDate = dto.InstallationDate,
+                MaintenanceDate = dto.MaintenanceDate,
+                EquipmentModel = dto.EquipmentModel
             };
 
             _context.BizEquipments.Add(eq);
@@ -105,10 +172,15 @@ namespace Andon.Controllers
         }
 
         /// <summary>
-        /// 修改设备【管理员】
+        /// 修改设备（roleid = 3 4 6）
         /// </summary>
-        [HttpPut("{id}")]
-        [Authorize(Roles = "3")]
+        /// <param name="id">设备 Id</param>
+        /// <param name="dto">设备更新 DTO</param>
+        /// <response>返回数据结构：string（操作结果消息）</response>
+        /// <response code="200">修改成功，返回成功消息</response>
+        /// <response code="404">设备不存在，返回错误信息字符串</response>
+        [HttpPut("api/bizequipment/update/{id}")]
+        [Authorize(Roles = "3,4,6")]
         public async Task<IActionResult> Update(int id, [FromBody] EquipmentUpdateDto dto)
         {
             var eq = await _context.BizEquipments.FindAsync(id);
@@ -120,16 +192,24 @@ namespace Andon.Controllers
             eq.Status = dto.Status;
             eq.Process = dto.Process;          
             eq.AlertContact = dto.AlertContact; 
+            eq.InstallationDate = dto.InstallationDate;
+            eq.MaintenanceDate = dto.MaintenanceDate;
+            eq.EquipmentModel = dto.EquipmentModel;
 
             await _context.SaveChangesAsync();
             return Ok("修改成功");
         }
 
         /// <summary>
-        /// 修改设备状态【管理员】
+        /// 修改设备状态（roleid = 3 4 6）
         /// </summary>
-        [HttpPatch("status/{id}")]
-        [Authorize(Roles = "3")]
+        /// <param name="id">设备 Id</param>
+        /// <param name="status">新状态</param>
+        /// <response>返回数据结构：string（操作结果消息，包含新状态）</response>
+        /// <response code="200">状态更新成功，返回包含状态的消息</response>
+        /// <response code="404">设备不存在</response>
+        [HttpPatch("api/bizequipment/status/{id}")]
+        [Authorize(Roles = "3,4,6")]
         public async Task<IActionResult> UpdateStatus(int id, [FromQuery] EquipmentStatus status)
         {
             var eq = await _context.BizEquipments.FindAsync(id);
@@ -141,10 +221,14 @@ namespace Andon.Controllers
         }
 
         /// <summary>
-        /// 删除设备【管理员】
+        /// 删除设备（roleid = 3 4 6）
         /// </summary>
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "3")]
+        /// <param name="id">设备 Id</param>
+        /// <response>返回数据结构：string（操作结果消息）</response>
+        /// <response code="200">删除成功</response>
+        /// <response code="404">设备不存在</response>
+        [HttpDelete("api/bizequipment/delete/{id}")]
+        [Authorize(Roles = "3,4,6")]
         public async Task<IActionResult> Delete(int id)
         {
             var eq = await _context.BizEquipments.FindAsync(id);

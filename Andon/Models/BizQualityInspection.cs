@@ -28,5 +28,8 @@ namespace Andon.Models
 
         [Column("is_qualified")]
         public int? IsQualified { get; set; } // 0不合格 1合格
+
+        [Column("detection_date")]
+        public DateTime? DetectionDate { get; set; }
     }
 }

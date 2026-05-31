@@ -25,5 +25,8 @@ namespace Andon.Models
         [Column("surplus_qty")]
         public int SurplusQty { get; set; } = 0;
 
+        [Column("safety_margin")]
+        public int SafetyMargin { get; set; } = 0;
+
     }
 }

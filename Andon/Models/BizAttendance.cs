@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Org.BouncyCastle.Asn1.Cms;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Andon.Models
@@ -18,8 +19,16 @@ namespace Andon.Models
         [MaxLength(20)]
         public string WorkDate { get; set; }
 
-        [Column("work_hours")]
-        public int? WorkHours { get; set; }
+        [Column("start_work_time")]
+        [MaxLength(20)]
+        public TimeSpan StartWorkTime { get; set; }
+
+        [Column("end_work_time")]
+        [MaxLength(20)]
+        public TimeSpan EndWorkTime { get; set; }
+
+        [Column("status")]
+        public int Status { get; set; } = 1;
 
         [Column("remark")]
         [MaxLength(255)]

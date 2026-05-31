@@ -2,6 +2,8 @@
 {
     public class ChangePwdDto
     {
+
+        public int UserId { get; set; }
         /// <summary>
         /// 原密码
         /// </summary>
