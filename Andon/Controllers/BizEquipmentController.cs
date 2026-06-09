@@ -4,8 +4,7 @@ using Andon.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-
+using Microsoft.Extensions.Logging;
 
 namespace Andon.Controllers
 {
@@ -15,9 +14,12 @@ namespace Andon.Controllers
     public class BizEquipmentController : ControllerBase
     {
         private readonly AppDbContext _context;
-        public BizEquipmentController(AppDbContext context)
+        private readonly ILogger<BizEquipmentController> _logger;
+
+        public BizEquipmentController(AppDbContext context, ILogger<BizEquipmentController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -28,9 +30,36 @@ namespace Andon.Controllers
         [HttpGet("api/bizequipment/all")]
         public async Task<IActionResult> GetAll()
         {
-            var allEquipments = await _context.BizEquipments
-                .AsNoTracking()
+            var query = _context.BizEquipments.AsNoTracking().AsQueryable();
+
+            // 打印生成的 SQL 便于比对
+            try { _logger.LogDebug("GetAll SQL: {Sql}", query.ToQueryString()); } catch { }
+
+            var allEquipments = await query
+                .Select(e => new
+                {
+                    e.Id,
+                    e.EquipmentCode,
+                    e.EquipmentName,
+                    Process = (int)e.Process,
+                    e.LineId,
+                    Status = (int)e.Status, // 明确返回数据库中的整数值
+                    e.AlertContact,
+                    e.InstallationDate,
+                    e.MaintenanceDate,
+                    e.EquipmentModel
+                })
                 .ToListAsync();
+
+            // 记录每条设备的 status，便于对比 logger 写入的值
+            try
+            {
+                foreach (var eq in allEquipments)
+                {
+                    _logger.LogInformation("GetAll 返回设备 {Id} status={Status}", eq.Id, eq.Status);
+                }
+            }
+            catch { }
 
             return Ok(allEquipments);
         }
@@ -50,7 +79,30 @@ namespace Andon.Controllers
             var items = await query
                 .Skip((page - 1) * limit)
                 .Take(limit)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.EquipmentCode,
+                    e.EquipmentName,
+                    Process = (int)e.Process,
+                    e.LineId,
+                    Status = (int)e.Status,
+                    e.AlertContact,
+                    e.InstallationDate,
+                    e.MaintenanceDate,
+                    e.EquipmentModel
+                })
                 .ToListAsync();
+
+            try
+            {
+                _logger.LogDebug("GetList SQL: {Sql}", query.ToQueryString());
+                foreach (var it in items)
+                {
+                    _logger.LogInformation("GetList 返回设备 {Id} status={Status}", it.Id, it.Status);
+                }
+            }
+            catch { }
 
             return Ok(new { total, items });
         }
@@ -138,8 +190,31 @@ namespace Andon.Controllers
         [HttpGet("api/bizequipment/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var eq = await _context.BizEquipments.FindAsync(id);
-            return eq == null ? NotFound("设备不存在") : Ok(eq);
+            var eq = await _context.BizEquipments
+                .AsNoTracking()
+                .Where(e => e.Id == id)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.EquipmentCode,
+                    e.EquipmentName,
+                    Process = (int)e.Process,
+                    e.LineId,
+                    Status = (int)e.Status,
+                    e.AlertContact,
+                    e.InstallationDate,
+                    e.MaintenanceDate,
+                    e.EquipmentModel
+                })
+                .FirstOrDefaultAsync();
+
+            if (eq != null)
+            {
+                try { _logger.LogInformation("GetById 返回设备 {Id} status={Status}", eq.Id, eq.Status); } catch { }
+                return Ok(eq);
+            }
+
+            return NotFound("设备不存在");
         }
 
         /// <summary>
@@ -166,8 +241,11 @@ namespace Andon.Controllers
                 EquipmentModel = dto.EquipmentModel
             };
 
+            _logger.LogInformation("Create equipment Id(temp) status={Status}", (int)eq.Status);
             _context.BizEquipments.Add(eq);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Created equipment Id={Id} status={Status}", eq.Id, (int)eq.Status);
+
             return Ok("添加成功");
         }
 
@@ -186,6 +264,7 @@ namespace Andon.Controllers
             var eq = await _context.BizEquipments.FindAsync(id);
             if (eq == null) return NotFound("设备不存在");
 
+            _logger.LogInformation("Update equipment {Id} before status={Old}", id, (int)eq.Status);
             eq.EquipmentCode = dto.EquipmentCode;
             eq.EquipmentName = dto.EquipmentName;
             eq.LineId = dto.LineId;
@@ -197,6 +276,8 @@ namespace Andon.Controllers
             eq.EquipmentModel = dto.EquipmentModel;
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Update equipment {Id} after status={New}", id, (int)eq.Status);
+
             return Ok("修改成功");
         }
 
@@ -215,8 +296,11 @@ namespace Andon.Controllers
             var eq = await _context.BizEquipments.FindAsync(id);
             if (eq == null) return NotFound();
 
+            _logger.LogInformation("UpdateStatus request for equipment {Id} from {Old} to {New}", id, (int)eq.Status, (int)status);
             eq.Status = status;
             await _context.SaveChangesAsync();
+            _logger.LogInformation("UpdateStatus applied for equipment {Id} now {New}", id, (int)eq.Status);
+
             return Ok("状态已更新：" + status);
         }
 
@@ -237,6 +321,52 @@ namespace Andon.Controllers
             _context.BizEquipments.Remove(eq);
             await _context.SaveChangesAsync();
             return Ok("删除成功");
+        }
+
+        /// <summary>
+        /// debug
+        /// </summary>
+        /// <param name="id">设备主键 Id</param>
+        /// <response>返回数据结构：{"efStatus": int?, "rawDbStatus": int?, "sql": string, "error": string}</response>
+        /// <response code="200">查询成功，返回设备状态及原始数据库状态</response>
+        [HttpGet("api/bizequipment/debug/{id}")]
+        public async Task<IActionResult> DebugStatus(int id)
+        {
+            var efResult = await _context.BizEquipments
+                .AsNoTracking()
+                .Where(e => e.Id == id)
+                .Select(e => new { Status = (int)e.Status })
+                .FirstOrDefaultAsync();
+
+            int? rawDbStatus = null;
+            string rawSql = null;
+
+            try
+            {
+                try { rawSql = _context.BizEquipments.Where(e => e.Id == id).ToQueryString(); } catch { }
+
+                var conn = _context.Database.GetDbConnection();
+                await conn.OpenAsync();
+
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT `status` FROM `biz_equipment` WHERE `id` = @id";
+                var p = cmd.CreateParameter();
+                p.ParameterName = "@id";
+                p.Value = id;
+                cmd.Parameters.Add(p);
+
+                var obj = await cmd.ExecuteScalarAsync();
+                if (obj != null && obj != DBNull.Value)
+                    rawDbStatus = Convert.ToInt32(obj);
+
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { error = ex.Message, efStatus = efResult?.Status, rawDbStatus, sql = rawSql });
+            }
+
+            return Ok(new { efStatus = efResult?.Status, rawDbStatus, sql = rawSql });
         }
     }
 }

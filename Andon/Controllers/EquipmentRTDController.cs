@@ -30,9 +30,6 @@ namespace Andon.Controllers
                 .FirstOrDefaultAsync();
 
 
-            await _hubContext.Clients.All
-                .SendAsync("JoinEquipmentRTDGroup", equipmentId.ToString());
-
             return Ok(data);
         }
 

@@ -5,6 +5,7 @@ using Andon.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Andon.Controllers
@@ -14,14 +15,15 @@ namespace Andon.Controllers
     public class IotController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IHubContext<LineMonitorHub> _hubContext;
+        private readonly IHubContext<EquipmentRTDHub> _hubContext;
+        private readonly ILogger<IotController> _logger;
 
-        public IotController(AppDbContext context, IHubContext<LineMonitorHub> hubContext)
+        public IotController(AppDbContext context, IHubContext<EquipmentRTDHub> hubContext, ILogger<IotController> logger)
         {
             _context = context;
             _hubContext = hubContext;
+            _logger = logger;
         }
-
 
         [HttpPost("EquipmentRTDUpload")]
         public async Task<IActionResult> EquipmentRTDUpload([FromBody] IoTEquipmentRTDReportDto dto)
@@ -58,6 +60,7 @@ namespace Andon.Controllers
             await _hubContext.Clients.Group(dto.EquipmentId.ToString())
                .SendAsync("ReceiveRealData", EquipmentRTD);
 
+            
             return Ok(new
             {
                 success = true,
@@ -65,7 +68,6 @@ namespace Andon.Controllers
                 equipmentName = equipment.EquipmentName
             });
         }
-
 
         [HttpPost("ErrorUpload")]
         public async Task<IActionResult> ErrorUpload([FromBody] IotUploadDto dto)
@@ -134,9 +136,23 @@ namespace Andon.Controllers
                 .FirstOrDefaultAsync(a => a.Id == dto.EquipmentId);
             if (changeStatusEquipment != null)
             {
+                // 临时日志：写入前后记录状态，便于排查
+                try
+                {
+                    var oldStatus = changeStatusEquipment.Status;
+                    _logger.LogInformation("设备 {EquipmentId} 写入前状态：{OldStatus}，上报状态：{ReportedStatus}", changeStatusEquipment.Id, (int)oldStatus, (int)dto.RunStatus);
+                }
+                catch { }
+
                 changeStatusEquipment.Status = dto.RunStatus;
                 _context.BizEquipments.Update(changeStatusEquipment);
                 await _context.SaveChangesAsync();
+
+                try
+                {
+                    _logger.LogInformation("设备 {EquipmentId} 写入后状态：{NewStatus}", changeStatusEquipment.Id, (int)changeStatusEquipment.Status);
+                }
+                catch { }
             }
 
             if (exists) return;
